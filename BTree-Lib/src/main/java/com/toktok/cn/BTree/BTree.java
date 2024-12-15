@@ -1,4 +1,4 @@
-package com.topview.BTree;
+package com.toktok.cn.BTree;
 
 /**
  * B树
@@ -36,10 +36,11 @@ public class BTree {
 
     /**
      * 新增关键字    doput()实现
-     * @param node 当前的节点
-     * @param key 新增的关键字
+     *
+     * @param node   当前的节点
+     * @param key    新增的关键字
      * @param parent 当前节点的父节点：用于递归新增非叶子节点时记录本节点
-     * @param index 需要新增到孩子节点的关键字数组的下标，用于递归新增非叶子节点
+     * @param index  需要新增到孩子节点的关键字数组的下标，用于递归新增非叶子节点
      */
     private void doPut(Node node, int key, Node parent, int index) {
         // 首先是找到要插入的位置，用i记录index
@@ -78,7 +79,7 @@ public class BTree {
      * @param parent 分裂节点的父节点
      * @param index  分裂节点是第几个孩子
      */
-     void split(Node left, Node parent, int index) {
+    void split(Node left, Node parent, int index) {
         // ①若分裂的是根节点，额外步骤：创建新根(涉及root)、当前根的父节点设为root
         if (parent == null) {
             Node newRoot = new Node(t);
@@ -120,10 +121,11 @@ public class BTree {
 
     /**
      * 删除关键字
+     *
      * @param parent 用于递归时记录原节点
-     * @param node 本节点
-     * @param index 用于递归时记录删除位置
-     * @param key 待删除的关键字
+     * @param node   本节点
+     * @param index  用于递归时记录删除位置
+     * @param key    待删除的关键字
      */
     private void doRemove(Node parent, Node node, int index, int key) {
         int i = 0;
