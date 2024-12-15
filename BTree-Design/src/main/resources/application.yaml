@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: BTree-Design
+  # mysql数据库
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://10.21.32.86:3306/logistics?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+      username: root
+      password: root
+      initial-size: 10
+      max-active: 60
+      min-idle: 5
+      filters: wall,mergeStat
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 5000
+      test-while-idle: true
+      test-on-borrow: true
+mybatis-plus:
+  #配置逻辑删除
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+  #sql打印
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
