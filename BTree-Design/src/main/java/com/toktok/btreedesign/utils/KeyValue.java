@@ -1,6 +1,6 @@
 package com.toktok.btreedesign.utils;
 
-import com.toktok.btreedesign.entity.Book;
+import com.toktok.btreedesign.entity.po.Book;
 import lombok.Data;
 
 @Data

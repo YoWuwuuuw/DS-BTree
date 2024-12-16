@@ -1,6 +1,6 @@
 package com.toktok.btreedesign;
 
-import com.toktok.btreedesign.entity.Book;
+import com.toktok.btreedesign.entity.po.Book;
 import com.toktok.btreedesign.utils.KeyValue;
 import com.toktok.btreedesign.utils.BTree;
 import com.toktok.btreedesign.utils.Node;

@@ -1,4 +1,4 @@
-package com.toktok.btreedesign.entity;
+package com.toktok.btreedesign.entity.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @TableName(value ="book")
 @Data
-public class Book {
+public class Book implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private int id;
@@ -50,4 +51,10 @@ public class Book {
      */
     @TableField(value = "put_in_at")
     private LocalDateTime putInAt;
+
+    /**
+     * 删除标识：0-未删除，1-已删除
+     */
+    @TableField(value = "deleted")
+    private Byte deleted;
 }

@@ -8,9 +8,9 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://10.21.32.86:3306/logistics?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+      url: jdbc:mysql://127.0.0.1:3306/ds-btree?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
       username: root
-      password: root
+      password: 2216348784
       initial-size: 10
       max-active: 60
       min-idle: 5

@@ -1,5 +1,7 @@
 package com.toktok.btreedesign.utils;
 
+import com.toktok.btreedesign.entity.po.Book;
+
 /**
  * B树
  */
@@ -48,7 +50,12 @@ public class BTree {
         while (i < node.keyNumber) {
             // 找到重复key，则更新(没挂载数据，所以仅演示)
             if (node.keyValues[i].getKey() == keyValue.getKey()) {
-                node.keyValues[i] = keyValue;
+                // 增加现存量和总存量
+                Book book = node.keyValues[i].getBook();
+                book.setStock(book.getStock() + 1);
+                book.setTotal(book.getTotal() + 1);
+                node.keyValues[i].setBook(book);
+                return;
             }
             // 找到了插入位置，即为此时的i(i代表待插入位置的关键字数组下标)
             if (node.keyValues[i].getKey() > keyValue.getKey()) {
@@ -239,8 +246,25 @@ public class BTree {
         int i = 0;
         for (; i < node.keyNumber; i++) {
             doTravel(node.children[i]);
-            System.out.println(node.keyValues[i].getKey());
+            System.out.println(node.keyValues[i]);
         }
         doTravel(node.children[i]);
+    }
+
+    public Book getBook(int key) {
+        Node node = root.get(key);
+        if (node == null) {
+            // 若找不到，则返回null
+            return null;
+        }
+
+        // 若找到对应节点，则遍历寻找key，返回对应Book
+        for (int i = 0; i < node.keyNumber; i++) {
+            if (node.keyValues[i].getKey() == key) {
+                return node.keyValues[i].getBook();
+            }
+        }
+
+        return null;
     }
 }
