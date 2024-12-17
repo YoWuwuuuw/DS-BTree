@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management</title>
+    <style>
+        /* 原有样式保持不变 */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        /* 新增样式用于分隔区域 */
+        .section-title {
+            margin-top: 20px;
+            font-size: 1.25em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-separator {
+            margin: 20px 0;
+            border-bottom: 1px solid #ccc;
+        }
+        /* 调整按钮样式，使其更加统一 */
+        .buttons button,
+        .standalone-button {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .standalone-button {
+            margin: 20px auto;
+            display: block;
+        }
+        /* 调整表单样式，使其更加紧凑 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Book Management</h1>
+
+    <!-- Result Display (Moved to the top) -->
+    <div class="result" id="result">
+        <!-- This will be populated with books via JavaScript -->
+    </div>
+
+    <div class="section-title">文献入库</div>
+    <form id="addBookForm">
+        <label for="bookName">文献名:</label>
+        <input type="text" id="bookName" name="bookName" required>
+        <label for="author">著者:</label>
+        <input type="text" id="author" name="author" required>
+        <label for="stock">现库存量:</label>
+        <input type="number" id="stock" name="stock" required>
+        <label for="total">总库存量:</label>
+        <input type="number" id="total" name="total" required>
+        <button type="button" class="standalone-button">Add Book</button> <!-- 更改按钮类型为button -->
+    </form>
+
+    <!-- Section Separator -->
+    <div class="section-separator"></div>
+
+    <!-- Delete Book by Name -->
+    <div class="section-title">清除文献</div>
+    <div class="form-group">
+        <label for="deleteBookName">需清除的文献名:</label>
+        <input type="text" id="deleteBookName" name="deleteBookName" required>
+        <button onclick="deleteBookByName()" class="standalone-button">Delete Book</button>
+    </div>
+
+    <!-- Borrow Book by Name -->
+    <div class="section-title">借阅文献</div>
+    <form id="borrowBookForm">
+        <label for="borrowBookName">文献名:</label>
+        <input type="text" id="borrowBookName" name="borrowBookName" required>
+        <label for="userName">用户名:</label>
+        <input type="text" id="userName" name="userName" required>
+        <label for="borrowId">借阅证件号:</label>
+        <input type="text" id="borrowId" name="borrowId" required>
+        <button type="button" class="standalone-button">Borrow Book</button> <!-- 更改按钮类型为button -->
+    </form>
+
+    <!-- Section Separator -->
+    <div class="section-separator"></div>
+    <!-- Return Book -->
+    <div class="section-title">归还文献</div>
+    <div class="form-group">
+        <label for="bookName">文献名:</label>
+        <input type="text" id="returnBookName" name="returnBookName" required>
+        <label for="returnUserName">借阅用户名:</label>
+        <input type="text" id="returnUserName" name="returnUserName" required>
+        <button onclick="returnBook()" class="standalone-button">Return Book</button>
+    </div>
+
+    <!-- Section Separator -->
+    <div class="section-separator"></div>
+
+    <!-- Refresh Button -->
+    <div class="section-title">刷新书籍列表</div>
+    <button onclick="getAllBooks()" class="standalone-button">Get All Books</button>
+</div>
+
+<script>
+    document.getElementById('addBookForm').querySelector('button').addEventListener('click', function() {
+        // 阻止表单默认提交行为（虽然按钮类型已更改为button，但这里仍然保留以防万一）
+        event.preventDefault();
+
+        // 获取表单数据
+        const bookName = document.getElementById('bookName').value;
+        const author = document.getElementById('author').value;
+        const stock = parseInt(document.getElementById('stock').value);
+        const total = parseInt(document.getElementById('total').value);
+
+        // 创建书籍对象
+        const book = { bookName, author, stock, total };
+
+        // 发送POST请求到服务器
+        fetch('http://localhost:8080/addBook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(book)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                getAllBooks(); // 刷新书籍列表
+                document.getElementById('addBookForm').reset(); // 清除表单内容
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('borrowBookForm').querySelector('button').addEventListener('click', function() {
+        // 阻止表单默认提交行为（虽然按钮类型已更改为button，但这里仍然保留以防万一）
+        event.preventDefault();
+
+        // 获取表单数据
+        const borrowBookName = document.getElementById('borrowBookName').value;
+        const userName = document.getElementById('userName').value;
+        const borrowId = document.getElementById('borrowId').value;
+
+        // 创建借阅记录对象
+        const recordBo = {
+            book: { bookName: borrowBookName },
+            userName,
+            borrowId
+        };
+
+        // 发送POST请求到服务器
+        fetch('http://localhost:8080/borrowBookByBookName', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(recordBo)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                getAllBooks(); // 刷新书籍列表
+                document.getElementById('borrowBookForm').reset(); // 清除表单内容
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+
+    function deleteBookByName() {
+        const bookName = document.getElementById('deleteBookName').value;
+        fetch(`http://localhost:8080/deleteBookByBookName?bookName=${bookName}`, {
+            method: 'PUT'
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                getAllBooks(); // 刷新书籍列表
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function returnBook() {
+        const bookName = document.getElementById('returnBookName').value;
+        const userName = document.getElementById('returnUserName').value;
+        fetch(`http://localhost:8080/returnBook?bookName=${bookName}&userName=${userName}`, {
+            method: 'PUT'
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                getAllBooks(); // 刷新书籍列表
+                document.getElementById('bookName').reset(); // 清除表单内容
+                document.getElementById('returnUserName').reset(); // 清除表单内容
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+
+    function getAllBooks() {
+        fetch('http://localhost:8080/getAllBook', {
+            method: 'GET'
+        })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '<div class="section-title">所有文献列表</div>';
+                data.data.forEach(book => {
+                    resultDiv.innerHTML += `<li>${book.bookName} by ${book.author} (Stock: ${book.stock})</li>`;
+                });
+                resultDiv.innerHTML += '</ul>';
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // 可选：页面加载时自动获取所有书籍
+    window.onload = function() {
+        getAllBooks();
+    }
+</script>
+</body>
+</html>

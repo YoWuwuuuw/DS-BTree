@@ -2,6 +2,9 @@ package com.toktok.btreedesign.utils;
 
 import com.toktok.btreedesign.entity.po.Book;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * B树
  */
@@ -53,7 +56,6 @@ public class BTree {
                 // 增加现存量和总存量
                 Book book = node.keyValues[i].getBook();
                 book.setStock(book.getStock() + 1);
-                book.setTotal(book.getTotal() + 1);
                 node.keyValues[i].setBook(book);
                 return;
             }
@@ -70,6 +72,52 @@ public class BTree {
         } else {
             // 非叶子节点：递归找当前节点的下标为i处关键字的左孩子(也可能下标i是孩子数组的最右孩子)，进行新增关键字
             doPut(node.children[i], keyValue, node, i);
+        }
+
+        // 校验：当插入后，当前节点的关键字数超过最大值 -> 需要分裂
+        if (node.keyNumber == MAX_KEY_NUMBER) {
+            split(node, parent, index);
+        }
+    }
+
+
+    public void sub(KeyValue keyValue) {
+        dosub(root, keyValue, null, 0);
+    }
+
+    /**
+     * 新增关键字    doput()实现
+     *
+     * @param node   当前的节点
+     * @param keyValue    新增的关键字
+     * @param parent 当前节点的父节点：用于递归新增非叶子节点时记录本节点
+     * @param index  需要新增到孩子节点的关键字数组的下标，用于递归新增非叶子节点
+     */
+    private void dosub(Node node, KeyValue keyValue, Node parent, int index) {
+        // 首先是找到要插入的位置，用i记录index
+        int i = 0;
+        while (i < node.keyNumber) {
+            // 找到重复key，则更新(没挂载数据，所以仅演示)
+            if (node.keyValues[i].getKey() == keyValue.getKey()) {
+                // 增加现存量和总存量
+                Book book = node.keyValues[i].getBook();
+                book.setStock(book.getStock() - 1);
+                node.keyValues[i].setBook(book);
+                return;
+            }
+            // 找到了插入位置，即为此时的i(i代表待插入位置的关键字数组下标)
+            if (node.keyValues[i].getKey() > keyValue.getKey()) {
+                break;
+            }
+            i++;
+        }
+
+        // 如果是叶子节点：直接插入
+        if (node.leaf) {
+            node.insertKey(keyValue, i);
+        } else {
+            // 非叶子节点：递归找当前节点的下标为i处关键字的左孩子(也可能下标i是孩子数组的最右孩子)，进行新增关键字
+            dosub(node.children[i], keyValue, node, i);
         }
 
         // 校验：当插入后，当前节点的关键字数超过最大值 -> 需要分裂
@@ -267,4 +315,5 @@ public class BTree {
 
         return null;
     }
+
 }

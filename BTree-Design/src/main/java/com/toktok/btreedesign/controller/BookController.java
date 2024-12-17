@@ -5,10 +5,9 @@ import com.toktok.btreedesign.entity.po.Book;
 import com.toktok.btreedesign.entity.bo.RecordBo;
 import com.toktok.btreedesign.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class BookController {
@@ -37,9 +36,13 @@ public class BookController {
     }
 
     @PutMapping("/returnBook")
-    public CommonResult<Boolean> returnBook(int bookKey, String userName){
-        return CommonResult.autoResult(bookService.returnBook(bookKey, userName));
+    public CommonResult<Boolean> returnBook(String bookName, String userName){
+        return CommonResult.autoResult(bookService.returnBook(bookName.hashCode(), userName));
     }
 
+    @GetMapping("/getAllBook")
+    public CommonResult<List<Book>> getAllBook(){
+        return CommonResult.autoResult(true, bookService.getAllBook());
+    }
 
 }
