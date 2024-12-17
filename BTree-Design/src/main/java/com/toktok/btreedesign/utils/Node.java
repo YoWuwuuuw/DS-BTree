@@ -34,24 +34,24 @@ public class Node {
         this.keyValues = new KeyValue[2 * t - 1];
     }
 
-    /**
-     * 弄一个构造方法方便测试
-     *
-     * @param keyValues 关键词数组
-     */
-    public Node(KeyValue[] keyValues) {
-        this.keyValues = keyValues;
-    }
+//    /**
+//     * 弄一个构造方法方便测试
+//     *
+//     * @param keyValues 关键词数组
+//     */
+//    public Node(KeyValue[] keyValues) {
+//        this.keyValues = keyValues;
+//    }
 
-    /**
-     * 将当前节点的关键字转换为String，便于打印
-     *
-     * @return String
-     */
-    @Override
-    public String toString() {
-        return Arrays.toString(Arrays.copyOfRange(keyValues, 0, keyNumber));
-    }
+//    /**
+//     * 将当前节点的关键字转换为String，便于打印
+//     *
+//     * @return String
+//     */
+//    @Override
+//    public String toString() {
+//        return Arrays.toString(Arrays.copyOfRange(keyValues, 0, keyNumber));
+//    }
 
     /**
      * 多路查找关键字

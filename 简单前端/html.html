@@ -61,11 +61,7 @@
 
 <div class="container">
     <h1>Book Management</h1>
-
-    <!-- Result Display (Moved to the top) -->
-    <div class="result" id="result">
-        <!-- This will be populated with books via JavaScript -->
-    </div>
+    <div class="result" id="result"></div>
 
     <div class="section-title">文献入库</div>
     <form id="addBookForm">
@@ -77,13 +73,13 @@
         <input type="number" id="stock" name="stock" required>
         <label for="total">总库存量:</label>
         <input type="number" id="total" name="total" required>
-        <button type="button" class="standalone-button">Add Book</button> <!-- 更改按钮类型为button -->
+        <button type="button" class="standalone-button">Add Book</button>
     </form>
 
-    <!-- Section Separator -->
-    <div class="section-separator"></div>
+
 
     <!-- Delete Book by Name -->
+    <div class="section-separator"></div>
     <div class="section-title">清除文献</div>
     <div class="form-group">
         <label for="deleteBookName">需清除的文献名:</label>
@@ -91,21 +87,32 @@
         <button onclick="deleteBookByName()" class="standalone-button">Delete Book</button>
     </div>
 
+
+
+
     <!-- Borrow Book by Name -->
     <div class="section-title">借阅文献</div>
     <form id="borrowBookForm">
         <label for="borrowBookName">文献名:</label>
         <input type="text" id="borrowBookName" name="borrowBookName" required>
+
         <label for="userName">用户名:</label>
         <input type="text" id="userName" name="userName" required>
+
         <label for="borrowId">借阅证件号:</label>
         <input type="text" id="borrowId" name="borrowId" required>
-        <button type="button" class="standalone-button">Borrow Book</button> <!-- 更改按钮类型为button -->
+
+        <label for="returnAt">归还日期:</label>
+        <input type="datetime-local" id="returnAt" name="returnAt" required>
+
+        <button type="button" class="standalone-button">Borrow Book</button>
     </form>
 
-    <!-- Section Separator -->
-    <div class="section-separator"></div>
+
+
+
     <!-- Return Book -->
+    <div class="section-separator"></div>
     <div class="section-title">归还文献</div>
     <div class="form-group">
         <label for="bookName">文献名:</label>
@@ -115,12 +122,16 @@
         <button onclick="returnBook()" class="standalone-button">Return Book</button>
     </div>
 
-    <!-- Section Separator -->
-    <div class="section-separator"></div>
+
+
 
     <!-- Refresh Button -->
+    <div class="section-separator"></div>
     <div class="section-title">刷新书籍列表</div>
     <button onclick="getAllBooks()" class="standalone-button">Get All Books</button>
+
+
+
 </div>
 
 <script>
@@ -154,20 +165,23 @@
             .catch(error => console.error('Error:', error));
     });
 
-    document.getElementById('borrowBookForm').querySelector('button').addEventListener('click', function() {
-        // 阻止表单默认提交行为（虽然按钮类型已更改为button，但这里仍然保留以防万一）
+    document.getElementById('borrowBookForm').querySelector('button').addEventListener('click', function(event) {
+        // 阻止表单默认提交行为
         event.preventDefault();
 
         // 获取表单数据
         const borrowBookName = document.getElementById('borrowBookName').value;
         const userName = document.getElementById('userName').value;
         const borrowId = document.getElementById('borrowId').value;
+        const returnAt = document.getElementById('returnAt').value; // 获取归还日期
 
         // 创建借阅记录对象
         const recordBo = {
             book: { bookName: borrowBookName },
             userName,
-            borrowId
+            borrowId,
+            borrowAt: new Date().toISOString(), // 设置借阅时间为当前时间
+            returnAt // 新增归还时间
         };
 
         // 发送POST请求到服务器
@@ -197,6 +211,7 @@
             .then(data => {
                 alert(data.message);
                 getAllBooks(); // 刷新书籍列表
+                document.getElementById('deleteBookName').value = ''; // 清空文献名输入框
             })
             .catch(error => console.error('Error:', error));
     }
@@ -211,8 +226,8 @@
             .then(data => {
                 alert(data.message);
                 getAllBooks(); // 刷新书籍列表
-                document.getElementById('bookName').reset(); // 清除表单内容
-                document.getElementById('returnUserName').reset(); // 清除表单内容
+                document.getElementById('returnBookName').value = ''; // 清空文献名输入框
+                document.getElementById('returnUserName').value = ''; // 清空用户名输入框
             })
             .catch(error => console.error('Error:', error));
     }

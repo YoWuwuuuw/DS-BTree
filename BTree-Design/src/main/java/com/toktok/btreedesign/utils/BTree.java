@@ -2,9 +2,6 @@ package com.toktok.btreedesign.utils;
 
 import com.toktok.btreedesign.entity.po.Book;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * B树
  */
@@ -34,19 +31,11 @@ public class BTree {
         return root.get(key) != null;
     }
 
-    // 2. 新增关键字
+    // 2. 新增关键字：增加库存+总库存
     public void put(KeyValue keyValue) {
         doPut(root, keyValue, null, 0);
     }
 
-    /**
-     * 新增关键字    doput()实现
-     *
-     * @param node   当前的节点
-     * @param keyValue    新增的关键字
-     * @param parent 当前节点的父节点：用于递归新增非叶子节点时记录本节点
-     * @param index  需要新增到孩子节点的关键字数组的下标，用于递归新增非叶子节点
-     */
     private void doPut(Node node, KeyValue keyValue, Node parent, int index) {
         // 首先是找到要插入的位置，用i记录index
         int i = 0;
@@ -55,7 +44,8 @@ public class BTree {
             if (node.keyValues[i].getKey() == keyValue.getKey()) {
                 // 增加现存量和总存量
                 Book book = node.keyValues[i].getBook();
-                book.setStock(book.getStock() + 1);
+                book.setStock(book.getStock() + keyValue.getBook().getStock());
+                book.setTotal(book.getTotal() + keyValue.getBook().getTotal());
                 node.keyValues[i].setBook(book);
                 return;
             }
@@ -80,59 +70,72 @@ public class BTree {
         }
     }
 
-
+    /**
+     * 辅助方法：减少b树对应key处的库存
+     * @param keyValue 键值
+     */
     public void sub(KeyValue keyValue) {
-        dosub(root, keyValue, null, 0);
+        doSub(root, keyValue, null, 0);
     }
 
-    /**
-     * 新增关键字    doput()实现
-     *
-     * @param node   当前的节点
-     * @param keyValue    新增的关键字
-     * @param parent 当前节点的父节点：用于递归新增非叶子节点时记录本节点
-     * @param index  需要新增到孩子节点的关键字数组的下标，用于递归新增非叶子节点
-     */
-    private void dosub(Node node, KeyValue keyValue, Node parent, int index) {
-        // 首先是找到要插入的位置，用i记录index
+    private void doSub(Node node, KeyValue keyValue, Node parent, int index) {
         int i = 0;
         while (i < node.keyNumber) {
-            // 找到重复key，则更新(没挂载数据，所以仅演示)
             if (node.keyValues[i].getKey() == keyValue.getKey()) {
-                // 增加现存量和总存量
                 Book book = node.keyValues[i].getBook();
                 book.setStock(book.getStock() - 1);
                 node.keyValues[i].setBook(book);
                 return;
             }
-            // 找到了插入位置，即为此时的i(i代表待插入位置的关键字数组下标)
             if (node.keyValues[i].getKey() > keyValue.getKey()) {
                 break;
             }
             i++;
         }
-
-        // 如果是叶子节点：直接插入
-        if (node.leaf) {
-            node.insertKey(keyValue, i);
-        } else {
-            // 非叶子节点：递归找当前节点的下标为i处关键字的左孩子(也可能下标i是孩子数组的最右孩子)，进行新增关键字
-            dosub(node.children[i], keyValue, node, i);
+        if (!node.leaf) {
+            doSub(node.children[i], keyValue, node, i);
         }
+        if (node.keyNumber == MAX_KEY_NUMBER) {
+            split(node, parent, index);
+        }
+    }
 
-        // 校验：当插入后，当前节点的关键字数超过最大值 -> 需要分裂
+
+    /**
+     * 辅助方法：增加b树对应key处的库存
+     * @param keyValue 键值
+     */
+    public void add(KeyValue keyValue) {
+        doAdd(root, keyValue, null, 0);
+    }
+
+    private void doAdd(Node node, KeyValue keyValue, Node parent, int index) {
+        int i = 0;
+        while (i < node.keyNumber) {
+            if (node.keyValues[i].getKey() == keyValue.getKey()) {
+                Book book = node.keyValues[i].getBook();
+                book.setStock(book.getStock() + 1);
+                node.keyValues[i].setBook(book);
+                return;
+            }
+            if (node.keyValues[i].getKey() > keyValue.getKey()) {
+                break;
+            }
+            i++;
+        }
+        if (!node.leaf) {
+            doAdd(node.children[i], keyValue, node, i);
+        }
         if (node.keyNumber == MAX_KEY_NUMBER) {
             split(node, parent, index);
         }
     }
 
     /**
-     * 分裂方法：最大的转移成新节点，中间的给父节点(分裂时必然是奇数)，重排当前节点和新节点
-     * 因需要测试，所以不加private修饰了，不然不同包下不可见
-     *
-     * @param left   要分裂的节点(因为他要移动到左侧)
-     * @param parent 分裂节点的父节点
-     * @param index  分裂节点是第几个孩子
+     * 辅助方法：越界时，用于B树分裂
+     * @param left 节点
+     * @param parent 节点
+     * @param index 下标
      */
     public void split(Node left, Node parent, int index) {
         // ①若分裂的是根节点，额外步骤：创建新根(涉及root)、当前根的父节点设为root
@@ -174,14 +177,6 @@ public class BTree {
         doRemove(null, root, 0, keyValue);
     }
 
-    /**
-     * 删除关键字
-     *
-     * @param parent 用于递归时记录原节点
-     * @param node   本节点
-     * @param index  用于递归时记录删除位置
-     * @param keyValue    待删除的关键字
-     */
     private void doRemove(Node parent, Node node, int index, KeyValue keyValue) {
         int i = 0;
         while (i < node.keyNumber) {
@@ -299,6 +294,11 @@ public class BTree {
         doTravel(node.children[i]);
     }
 
+    /**
+     * 辅助方法：通过key获取值
+     * @param key 关键字
+     * @return Book类 / null
+     */
     public Book getBook(int key) {
         Node node = root.get(key);
         if (node == null) {

@@ -1,4 +1,4 @@
-package com.toktok.btreedesign;
+package com.toktok.btreedesign.configure;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
