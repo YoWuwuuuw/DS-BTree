@@ -1,6 +1,6 @@
 package com.toktok.btreedesign.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.toktok.btreedesign.entity.dto.BookRecordDTO;
 import com.toktok.btreedesign.entity.po.Book;
 import com.toktok.btreedesign.entity.bo.RecordBo;
 
@@ -17,5 +17,7 @@ public interface BookService {
     boolean returnBook(int bookKey, String userName);
 
     List<Book> getAllBook();
+
+    List<BookRecordDTO> getBookStatus(String keyWord);
 
 }

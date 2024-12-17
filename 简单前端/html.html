@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Management</title>
     <style>
+        table {
+            width: 100%;
+            border-collapse: collapse; /* 使表格边框合并 */
+        }
+        th, td {
+            border: 1px solid #ddd; /* 添加表格线 */
+            padding: 8px; /* 单元格内填充 */
+        }
+        th {
+            background-color: #f2f2f2; /* 表头背景色 */
+            text-align: left; /* 表头文本左对齐 */
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9; /* 偶数行背景色 */
+        }
+        tr:hover {
+            background-color: #ddd; /* 悬停效果 */
+        }
+        .section-title {
+            margin-bottom: 10px; /* 与表格的间距 */
+        }
         /* 原有样式保持不变 */
         body {
             font-family: Arial, sans-serif;
@@ -60,9 +81,16 @@
 <body>
 
 <div class="container">
-    <h1>Book Management</h1>
+    <h1>文献管理系统</h1>
     <div class="result" id="result"></div>
 
+    <!-- Refresh Button -->
+    <div class="section-separator"></div>
+    <div class="section-title">刷新书籍列表</div>
+    <button onclick="getAllBooks()" class="standalone-button">Get All Books</button>
+
+
+    <div class="section-separator"></div>
     <div class="section-title">文献入库</div>
     <form id="addBookForm">
         <label for="bookName">文献名:</label>
@@ -71,8 +99,6 @@
         <input type="text" id="author" name="author" required>
         <label for="stock">现库存量:</label>
         <input type="number" id="stock" name="stock" required>
-        <label for="total">总库存量:</label>
-        <input type="number" id="total" name="total" required>
         <button type="button" class="standalone-button">Add Book</button>
     </form>
 
@@ -124,17 +150,58 @@
 
 
 
-
-    <!-- Refresh Button -->
     <div class="section-separator"></div>
-    <div class="section-title">刷新书籍列表</div>
-    <button onclick="getAllBooks()" class="standalone-button">Get All Books</button>
-
-
-
+    <div class="section-title">关键字搜索(文献名/著者)</div>
+    <div class="buttons-container">
+        <input type="text" id="keyword" placeholder="请输入文献名/著者">
+        <button onclick="fetchBookStatus()">Search</button>
+        <span class="close-btn" onclick="closeBookStatus()" id="closeBookBtn">关闭展示</span> <!-- 关闭按钮，初始隐藏 -->
+    </div>
+    <div id="bookStatus">
+        <div id="bookList"></div> <!-- 书籍列表容器 -->
+    </div>
 </div>
 
+
+
 <script>
+    let isBookStatusVisible = false; // 控制书籍状态显示的全局变量
+
+    async function fetchBookStatus() {
+        const keyword = document.getElementById('keyword').value;
+        const response = await fetch(`http://localhost:8080/getBookStatus?keyWord=${keyword}`);
+        const data = await response.json();
+
+        const bookStatusDiv = document.getElementById('bookStatus');
+        const bookListDiv = document.getElementById('bookList');
+        bookListDiv.innerHTML = ''; // 清空书籍列表
+
+        if (data.code === 200) {
+            data.data.forEach(book => {
+                const bookElement = document.createElement('div');
+                bookElement.innerHTML = `
+                        <h2>${book.bookName}</h2>
+                        <p>Author: ${book.author}</p>
+                        <p>Number of Borrows: ${book.numOfBorrow}</p>
+                        <p>Total: ${book.total}</p>
+                        <p>Hot: ${book.hot}</p>
+                        <hr>
+                    `;
+                bookListDiv.appendChild(bookElement);
+            });
+            bookStatusDiv.style.display = 'block'; // 显示书籍状态
+            isBookStatusVisible = true; // 更新显示状态
+        } else {
+            alert('Failed to fetch book status. Error: ' + (data.message || 'Unknown error'));
+        }
+    }
+
+    function closeBookStatus() {
+        document.getElementById('bookStatus').style.display = 'none'; // 隐藏书籍状态
+        document.getElementById('bookList').innerHTML = ''; // 清空书籍列表（可选）
+        isBookStatusVisible = false; // 更新显示状态
+    }
+
     document.getElementById('addBookForm').querySelector('button').addEventListener('click', function() {
         // 阻止表单默认提交行为（虽然按钮类型已更改为button，但这里仍然保留以防万一）
         event.preventDefault();
@@ -143,10 +210,10 @@
         const bookName = document.getElementById('bookName').value;
         const author = document.getElementById('author').value;
         const stock = parseInt(document.getElementById('stock').value);
-        const total = parseInt(document.getElementById('total').value);
+        // const total = parseInt(document.getElementById('total').value);
 
         // 创建书籍对象
-        const book = { bookName, author, stock, total };
+        const book = { bookName, author, stock };
 
         // 发送POST请求到服务器
         fetch('http://localhost:8080/addBook', {
@@ -164,6 +231,9 @@
             })
             .catch(error => console.error('Error:', error));
     });
+
+
+
 
     document.getElementById('borrowBookForm').querySelector('button').addEventListener('click', function(event) {
         // 阻止表单默认提交行为
@@ -240,11 +310,44 @@
             .then(response => response.json())
             .then(data => {
                 const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '<div class="section-title">所有文献列表</div>';
-                data.data.forEach(book => {
-                    resultDiv.innerHTML += `<li>${book.bookName} by ${book.author} (Stock: ${book.stock})</li>`;
+                // 清空之前的内容（如果有的话）
+                resultDiv.innerHTML = '';
+
+                // 创建表格元素
+                const table = document.createElement('table');
+
+                // 添加表格标题
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'section-title';
+                titleDiv.textContent = '所有文献列表';
+                resultDiv.appendChild(titleDiv);
+
+                // 添加表头
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                ['书名', '作者', '库存量', '热度值'].forEach(text => {
+                    const th = document.createElement('th');
+                    th.textContent = text;
+                    headerRow.appendChild(th);
                 });
-                resultDiv.innerHTML += '</ul>';
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                // 添加书籍数据行
+                const tbody = document.createElement('tbody');
+                data.data.forEach(book => {
+                    const row = document.createElement('tr');
+                    ['bookName', 'author', 'stock', 'hot'].forEach(key => {
+                        const td = document.createElement('td');
+                        td.textContent = book[key];
+                        row.appendChild(td);
+                    });
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+
+                // 将表格添加到结果div中
+                resultDiv.appendChild(table);
             })
             .catch(error => console.error('Error:', error));
     }
@@ -252,7 +355,7 @@
     // 可选：页面加载时自动获取所有书籍
     window.onload = function() {
         getAllBooks();
-    }
+    };
 </script>
 </body>
 </html>

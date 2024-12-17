@@ -45,7 +45,7 @@ public class BTree {
                 // 增加现存量和总存量
                 Book book = node.keyValues[i].getBook();
                 book.setStock(book.getStock() + keyValue.getBook().getStock());
-                book.setTotal(book.getTotal() + keyValue.getBook().getTotal());
+                book.setTotal(book.getTotal() + keyValue.getBook().getStock());
                 node.keyValues[i].setBook(book);
                 return;
             }
@@ -84,6 +84,7 @@ public class BTree {
             if (node.keyValues[i].getKey() == keyValue.getKey()) {
                 Book book = node.keyValues[i].getBook();
                 book.setStock(book.getStock() - 1);
+                book.setHot(book.getHot() + 1);
                 node.keyValues[i].setBook(book);
                 return;
             }

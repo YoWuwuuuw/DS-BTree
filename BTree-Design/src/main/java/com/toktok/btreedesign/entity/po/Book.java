@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -34,12 +35,14 @@ public class Book implements Serializable {
      * 现存量
      */
     @TableField(value = "stock")
+    @Positive(message = "必须为正数")
     private int stock;
 
     /**
      * 总库存量
      */
     @TableField(value = "total")
+    @Positive(message = "必须为正数")
     private int total;
 
     /**

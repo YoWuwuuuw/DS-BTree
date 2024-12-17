@@ -1,6 +1,7 @@
 package com.toktok.btreedesign.controller;
 
 import com.toktok.btreedesign.common.CommonResult;
+import com.toktok.btreedesign.entity.dto.BookRecordDTO;
 import com.toktok.btreedesign.entity.po.Book;
 import com.toktok.btreedesign.entity.bo.RecordBo;
 import com.toktok.btreedesign.service.BookService;
@@ -67,4 +68,12 @@ public class BookController {
         return CommonResult.autoResult(true, bookService.getAllBook());
     }
 
+    /**
+     * (关键词过滤:author、bookName)查询含关键词文献集合的状态
+     * @return 文献状态集合
+     */
+    @GetMapping("/getBookStatus")
+    public CommonResult<List<BookRecordDTO>> getBookStatus(String keyWord){
+        return CommonResult.autoResult(true, bookService.getBookStatus(keyWord));
+    }
 }

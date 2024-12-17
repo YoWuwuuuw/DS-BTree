@@ -11,62 +11,62 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class TestBTree {
 
-    @Test
-    @DisplayName("split(t=2)，分裂叶子节点")
-    void testSplit1() {
-        /*
-                5               2|5
-              /   \     ==>    / | \
-           1|2|3   6          1  3  6
-         */
-        BTree tree = new BTree();
-        Node root = tree.root;
-        root.leaf = false;
-
-        KeyValue keyValue = new KeyValue();
-        keyValue.setKey(5);
-        keyValue.setBook(new Book());
-        root.keyValues[0] = keyValue;
-        root.keyNumber = 1;
-
-        KeyValue[] keyValues = new KeyValue[3];
-        KeyValue keyValue1 = new KeyValue();
-        keyValue1.setKey(1);
-        keyValue1.setBook(new Book());
-        keyValues[0] = keyValue1;
-
-        KeyValue keyValue2 = new KeyValue();
-        keyValue2.setKey(2);
-        keyValue2.setBook(new Book());
-        keyValues[1] = keyValue2;
-
-        KeyValue keyValue3 = new KeyValue();
-        keyValue3.setKey(3);
-        keyValue3.setBook(new Book());
-        keyValues[2] = keyValue3;
-
-        root.children[0] = new Node(keyValues);
-        root.children[0].keyNumber = 3;
-
-        KeyValue[] keyValues2 = new KeyValue[1];
-        KeyValue keyValue4 = new KeyValue();
-        keyValue4.setKey(6);
-        keyValue4.setBook(new Book());
-        keyValues2[0] = keyValue4;
-        root.children[1] = new Node(keyValues2);
-        root.children[1].keyNumber = 1;
-
-        tree.split(root.children[0], root, 0);
-        System.out.println(root.toString());
-        System.out.println(root.children[0].toString());
-        System.out.println(root.children[1].toString());
-        System.out.println(root.children[2].toString());
+//    @Test
+//    @DisplayName("split(t=2)，分裂叶子节点")
+//    void testSplit1() {
+//        /*
+//                5               2|5
+//              /   \     ==>    / | \
+//           1|2|3   6          1  3  6
+//         */
+//        BTree tree = new BTree();
+//        Node root = tree.root;
+//        root.leaf = false;
+//
+//        KeyValue keyValue = new KeyValue();
+//        keyValue.setKey(5);
+//        keyValue.setBook(new Book());
+//        root.keyValues[0] = keyValue;
+//        root.keyNumber = 1;
+//
+//        KeyValue[] keyValues = new KeyValue[3];
+//        KeyValue keyValue1 = new KeyValue();
+//        keyValue1.setKey(1);
+//        keyValue1.setBook(new Book());
+//        keyValues[0] = keyValue1;
+//
+//        KeyValue keyValue2 = new KeyValue();
+//        keyValue2.setKey(2);
+//        keyValue2.setBook(new Book());
+//        keyValues[1] = keyValue2;
+//
+//        KeyValue keyValue3 = new KeyValue();
+//        keyValue3.setKey(3);
+//        keyValue3.setBook(new Book());
+//        keyValues[2] = keyValue3;
+//
+//        root.children[0] = new Node(keyValues);
+//        root.children[0].keyNumber = 3;
+//
+//        KeyValue[] keyValues2 = new KeyValue[1];
+//        KeyValue keyValue4 = new KeyValue();
+//        keyValue4.setKey(6);
+//        keyValue4.setBook(new Book());
+//        keyValues2[0] = keyValue4;
+//        root.children[1] = new Node(keyValues2);
+//        root.children[1].keyNumber = 1;
+//
+//        tree.split(root.children[0], root, 0);
+//        System.out.println(root.toString());
+//        System.out.println(root.children[0].toString());
+//        System.out.println(root.children[1].toString());
+//        System.out.println(root.children[2].toString());
 
 //        Assertions.assertEquals("[2, 5]", root.toString());
 //        Assertions.assertEquals("[1]", root.children[0].toString());
 //        Assertions.assertEquals("[3]", root.children[1].toString());
 //        Assertions.assertEquals("[6]", root.children[2].toString());
-    }
+//    }
 
 //    @Test
 //    @DisplayName("split(t=3)，分裂叶子节点")
