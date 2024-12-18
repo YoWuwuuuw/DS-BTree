@@ -35,14 +35,12 @@ public class Book implements Serializable {
      * 现存量
      */
     @TableField(value = "stock")
-    @Positive(message = "必须为正数")
     private int stock;
 
     /**
      * 总库存量
      */
     @TableField(value = "total")
-    @Positive(message = "必须为正数")
     private int total;
 
     /**
@@ -62,4 +60,17 @@ public class Book implements Serializable {
      */
     @TableField(value = "deleted")
     private Byte deleted;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Book book = (Book) obj;
+        return bookName.equals(book.bookName); // 根据文献名判断相等
+    }
+
+    @Override
+    public int hashCode() {
+        return bookName.hashCode();
+    }
 }

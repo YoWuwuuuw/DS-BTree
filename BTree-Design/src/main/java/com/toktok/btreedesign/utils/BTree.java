@@ -83,8 +83,6 @@ public class BTree {
         while (i < node.keyNumber) {
             if (node.keyValues[i].getKey() == keyValue.getKey()) {
                 Book book = node.keyValues[i].getBook();
-                book.setStock(book.getStock() - 1);
-                book.setHot(book.getHot() + 1);
                 node.keyValues[i].setBook(book);
                 return;
             }
