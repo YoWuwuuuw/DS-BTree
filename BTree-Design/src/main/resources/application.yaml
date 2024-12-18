@@ -29,3 +29,12 @@ mybatis-plus:
   #sql打印
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#日志配置
+logging:
+  level: #配置指定包的路径下应用程序的日志记录和日志级别。
+    root: info
+    springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator: error
+    org.springframework: warn
+  file:
+    path: \logs\ #设置日志输出路径
+    name: book-crud.log #设置日志文件的名称

@@ -12,7 +12,7 @@ import com.toktok.btreedesign.service.RecordService;
 import com.toktok.btreedesign.utils.BTree;
 import com.toktok.btreedesign.utils.BookListContainer;
 import com.toktok.btreedesign.utils.KeyValue;
-import com.toktok.btreedesign.utils.Node;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements BookService, ApplicationRunner {
 
@@ -38,12 +39,15 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
      */
     private static BookListContainer bookListContainer = new BookListContainer();
 
+    @Autowired
+    private RecordService recordService;
 
     /**
      * 系统启动线程：在系统启动时加载数据库数据进入B树(内存)存储
      */
     @Override
     public void run(ApplicationArguments args) {
+        log.info("正在初始化数据..");
         // 采用5阶b树存储
         bTree = new BTree(5);
 
@@ -58,20 +62,6 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     }
 
 
-    @Autowired
-    private RecordService recordService;
-
-//    /**
-//     * 辅助方法：根据文献名获取文献【省略dao层】
-//     * @param bookName 文献名
-//     * @return 文献实体类
-//     */
-//    private Book getBookByBookName(String bookName) {
-//        QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("book_name", bookName);
-//        return this.getOne(queryWrapper);
-//    }
-
 
     /**
      * 一、新增文献
@@ -81,6 +71,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     @Override
     @Transactional
     public boolean addBook(Book book) {
+        log.info(" '{}'文献正在入库..", book.getBookName());
         // 校验是否为空、库存量必须为正
         Assert.isTrue(!book.getBookName().isEmpty(), "传入文献不能为空");
         Assert.isTrue(book.getStock() > 0, "库存量必须为正数");
@@ -123,6 +114,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
      */
     @Override
     public boolean deleteBookByBookName(String bookName) {
+        log.info(" '{}'文献正在出库..", bookName);
         QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_name", bookName);
         // 若删除文献失效，则提示不存在文献
@@ -143,6 +135,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     @Override
     @Transactional
     public boolean borrowBookByBookName(RecordBo recordBo) {
+        log.info("{}正在借阅文献{}", recordBo.getUserName(), recordBo.getBook().getBookName());
         int key = recordBo.getBook().getBookName().hashCode();
         // 校验：文献是否存在
         Assert.isTrue(bTree.contains(key), "文献不存在");
@@ -183,6 +176,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
      */
     @Override
     public boolean returnBook(int bookKey, String userName){
+        log.info("{}正在归还文献，文献号{}", userName, bookKey);
         Record record = recordService.getByBookKeyAndUserName(bookKey, userName);
         // 校验：没有借阅记录
         Assert.notNull(record, "借阅记录不存在");
@@ -210,6 +204,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
      */
     @Override
     public List<Book> getAllBook() {
+        log.info("正在查询所有文献");
         // 更新内存中维护的list集合，只有与btree冲突时才进行赋值操作
         bookListContainer.convertToBookList(bTree);
 
@@ -223,6 +218,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
      */
     @Override
     public List<BookRecordDTO> getBookStatus(String keyWord) {
+        log.info("正在条件查询文献状态信息");
         List<Book> allBooks = bookListContainer.sortByHotAndReturn();
 
         List<Book> filteredBooks = allBooks.stream()

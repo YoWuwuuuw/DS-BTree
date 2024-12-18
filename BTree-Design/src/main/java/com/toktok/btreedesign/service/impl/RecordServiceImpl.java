@@ -2,12 +2,13 @@ package com.toktok.btreedesign.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.toktok.btreedesign.entity.bo.RecordBo;
 import com.toktok.btreedesign.entity.po.Record;
 import com.toktok.btreedesign.mapper.RecordMapper;
 import com.toktok.btreedesign.service.RecordService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordService {
 
@@ -29,6 +30,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
      */
     @Override
     public boolean deleteByBookKeyAndUserName(int bookKey, String userName) {
+        log.info("正在删除{}的借阅记录，文献号{}", userName, bookKey);
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_key", bookKey);
         queryWrapper.eq("user_name", userName);
@@ -50,6 +52,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
     }
 
     public Record getByBookKeyAndUserName(int bookKey, String userName) {
+        log.info("正在查询{}的借阅记录，文献号{}", userName, bookKey);
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_key", bookKey);
         queryWrapper.eq("user_name", userName);

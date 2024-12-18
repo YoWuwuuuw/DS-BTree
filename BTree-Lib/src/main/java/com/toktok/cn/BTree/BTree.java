@@ -200,7 +200,7 @@ public class BTree {
             x.insertKey(parent.keys[i], x.keyNumber);
             // b) right中最小的孩子换爹
             if (!right.leaf) {
-                x.insertChild(right.removeLeftmostChild(), x.keyNumber); // @TODO 学员指出多加了1
+                x.insertChild(right.removeLeftmostChild(), x.keyNumber);
             }
             // c) right中最小的key旋转上去
             parent.keys[i] = right.removeLeftmostKey();

@@ -21,9 +21,7 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author Albumen
- */
+
 @ControllerAdvice
 @Component
 @Slf4j
